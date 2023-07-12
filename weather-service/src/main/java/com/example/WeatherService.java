@@ -10,8 +10,6 @@ import org.apache.kafka.common.serialization.Serdes;
 import org.apache.kafka.streams.StreamsBuilder;
 import org.apache.kafka.streams.Topology;
 import org.apache.kafka.streams.kstream.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 
@@ -20,7 +18,7 @@ public class WeatherService {
 
     private static final String temperatureTopic = "temperature-topic";
     private static final String uvTopic = "uv-topic";
-    private static final Logger log = LoggerFactory.getLogger(WeatherService.class);
+    private static final String weatherTopic = "weather-topic";
 
     @Produces
     public Topology buildTopologyForWeatherService() {
@@ -34,15 +32,15 @@ public class WeatherService {
             KStream<String, Uv> uvStream = builder
                 .stream(uvTopic, Consumed.with(Serdes.String(), uvSerde));
 
-            ValueJoiner<Temperature, Uv, Weather> valueJoiner = (leftValue, rightValue) ->
-                new Weather(leftValue.location(), leftValue.temperature(), rightValue.index());
+            ValueJoiner<Temperature, Uv, Weather> valueJoiner = (temperatureData, uvData) ->
+                new Weather(temperatureData.location(), temperatureData.temperature(), uvData.index());
 
             temperatureStream
                 .join(uvStream,
                     valueJoiner,
-                    JoinWindows.ofTimeDifferenceWithNoGrace(Duration.ofSeconds(10)),
+                    JoinWindows.ofTimeDifferenceWithNoGrace(Duration.ofSeconds(5)),
                     StreamJoined.with(Serdes.String(), temperatureSerde, uvSerde))
-                .peek((key, value) -> log.info("{} -> {}", key, value));
+                .to(weatherTopic, Produced.with(Serdes.String(), weatherSerde));
 
             return builder.build();
         }

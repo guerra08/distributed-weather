@@ -11,11 +11,11 @@ public record Weather(String location, double temperature, int uvIndex, String s
     private static String buildSummary(double temperature, int uvIndex) {
         Function<Double, String> temperatureSummaryBuilder = temp -> {
             if (temp < 70.0) {
-                return "It's cold right now!";
+                return "It's cold right now \uD83E\uDD76!";
             } else if (temp > 87.0) {
-                return "It's hot right now!";
+                return "It's hot right now! \uD83E\uDD75";
             } else {
-                return "The temperature is just right!";
+                return "The temperature is just right! \uD83D\uDE42";
             }
         };
 
