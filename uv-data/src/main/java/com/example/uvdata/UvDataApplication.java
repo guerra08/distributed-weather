@@ -24,10 +24,11 @@ public class UvDataApplication {
         SpringApplication.run(UvDataApplication.class, args);
     }
 
-    @Scheduled(fixedRate = 2000)
+    @Scheduled(fixedRate = 5000)
     public void sendToKafka() {
         log.info("Sending uv data to uv-topic topic...");
-        kafkaTemplate.send("uv-topic", new Uv("POA", getRandomNumber(0, 11)));
+        String location = "POA";
+        kafkaTemplate.send("uv-topic", location, new Uv(location, getRandomNumber(0, 11)));
     }
 
     private static int getRandomNumber(int min, int max) {

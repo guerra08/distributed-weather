@@ -25,10 +25,11 @@ public class TemperatureDataApplication {
         SpringApplication.run(TemperatureDataApplication.class, args);
     }
 
-    @Scheduled(fixedRate = 2000)
+    @Scheduled(fixedRate = 5000)
     public void sendToKafka() {
         log.info("Sending temperature data to temperature-topic topic...");
-        kafkaTemplate.send("temperature-topic", new Temperature("POA", new Random().nextDouble() * 100.0));
+        String location = "POA";
+        kafkaTemplate.send("temperature-topic", location, new Temperature(location, new Random().nextDouble() * 100.0));
     }
 
 }
