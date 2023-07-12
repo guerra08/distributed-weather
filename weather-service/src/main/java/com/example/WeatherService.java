@@ -34,7 +34,8 @@ public class WeatherService {
             KStream<String, Uv> uvStream = builder
                 .stream(uvTopic, Consumed.with(Serdes.String(), uvSerde));
 
-            ValueJoiner<Temperature, Uv, String> valueJoiner = (leftValue, rightValue) -> leftValue + " - " + rightValue;
+            ValueJoiner<Temperature, Uv, Weather> valueJoiner = (leftValue, rightValue) ->
+                new Weather(leftValue.location(), leftValue.temperature(), rightValue.index());
 
             temperatureStream
                 .join(uvStream,
